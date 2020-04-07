@@ -12,10 +12,7 @@ async function startServer(app: Application) {
     context: () => ({ db }),
   });
   server.applyMiddleware({ app, path: "/graphql" });
-  const listings = await db.listings.find({}).toArray();
-
   const port = 9000;
-
   app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
     console.log(`Graphql endpoint is at http://localhost:${port}/graphql`);
