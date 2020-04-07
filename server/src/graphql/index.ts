@@ -1,2 +1,2 @@
-export * from "./resolvers";
+export * from "./reslovers";
 export * from "./typeDefs";
