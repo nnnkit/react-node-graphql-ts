@@ -1,22 +1,24 @@
-import express from "express"
-import bodyParser from "body-parser"
-import { listings } from "./listing"
+import express, { Application } from "express";
+import { ApolloServer } from "apollo-server-express";
+import mongoose from "mongoose";
+import { typeDefs, resolvers } from "./graphql";
+import { connectDatabase } from "./database";
 
-const app = express()
-const port = 9000
-app.use(bodyParser.json())
-app.get("/", (req, res) => {
-  res.send("Hello World!")
-})
-app.get("/listing", (_req, res) => {
-  res.send(listings)
-})
-app.post("/delete", (req, res) => {
-  let id: string = req.body.id
-  let index: number = listings.findIndex(p => p.id === id)
-  listings.splice(index, 1)
-  res.send(listings)
-})
+async function startServer(app: Application) {
+  const db = await connectDatabase();
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: () => ({ db }),
+  });
+  server.applyMiddleware({ app, path: "/graphql" });
+  const listings = await db.listings.find({}).toArray();
 
-app.listen(port)
-console.log("Server is running at https://localhost:9000")
+  const port = 9000;
+
+  app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+    console.log(`Graphql endpoint is at http://localhost:${port}/graphql`);
+  });
+}
+startServer(express());

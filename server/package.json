@@ -9,12 +9,19 @@
     "build": "tsc -p ./"
   },
   "dependencies": {
+    "apollo-server-express": "2.9.16",
     "body-parser": "1.19.0",
-    "express": "4.17.1"
+    "express": "4.17.1",
+    "graphql": "14.6.0",
+    "mongodb": "3.5.5",
+    "mongoose": "5.8.10"
   },
   "devDependencies": {
-    "@types/express": "4.17.2",
     "@types/body-parser": "1.17.1",
+    "@types/express": "4.17.2",
+    "@types/graphql": "14.5.0",
+    "@types/mongodb": "3.5.5",
+    "@types/mongoose": "5.5.43",
     "@types/node": "13.1.8",
     "nodemon": "2.0.2",
     "ts-node": "8.6.2",
