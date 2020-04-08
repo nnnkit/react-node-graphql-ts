@@ -1,6 +1,5 @@
 import express, { Application } from "express";
 import { ApolloServer } from "apollo-server-express";
-import mongoose from "mongoose";
 import { typeDefs, resolvers } from "./graphql";
 import { connectDatabase } from "./database";
 

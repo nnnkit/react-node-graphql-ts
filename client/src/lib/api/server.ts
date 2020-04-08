@@ -1,8 +1,9 @@
-interface Body {
+interface Body<TVariable> {
   query: string;
+  variables?: TVariable;
 }
 export const server = {
-  fetch: async <TData = any>(body: Body) => {
+  fetch: async <TData = any, TVariable = any>(body: Body<TVariable>) => {
     let res = await fetch("/graphql", {
       method: "POST",
       headers: {
