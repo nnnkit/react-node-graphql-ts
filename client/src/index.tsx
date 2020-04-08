@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { Listings } from "./section/Listings";
 
 ReactDOM.render(
   <React.StrictMode>
-    <div>Hello React + Node</div>
+    <Listings />
   </React.StrictMode>,
   document.getElementById("root")
 );
