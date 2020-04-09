@@ -1,8 +1,10 @@
 import React, { FC } from "react";
+import { gql } from "apollo-boost";
 import { server } from "../../lib/api/server";
 import { ListingData, DeleteListing, DeleteListingVariable } from "./types";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 
-const LISTINGS = `
+const LISTINGS = gql`
   query Listings {
     listing {
       id
@@ -17,33 +19,35 @@ const LISTINGS = `
     }
   }
 `;
-const DELETE_LISTING = `
+const DELETE_LISTING = gql`
   mutation DeleteListing($id: ID!) {
-    deleteListing(id: $id){
+    deleteListing(id: $id) {
       id
       title
     }
   }
 `;
 export const Listings: FC = () => {
-  async function fetchData() {
-    const { data } = await server.fetch<ListingData>({ query: LISTINGS });
-    console.log(data);
-  }
-  async function deleteListing() {
-    const { data } = await server.fetch<DeleteListing, DeleteListingVariable>({
-      query: DELETE_LISTING,
-      variables: {
-        id: "5e8c5854f264b6475b25bc24",
-      },
-    });
-    console.log(data);
+  let { data, refetch } = useQuery<ListingData>(LISTINGS);
+  let [deleteListing] = useMutation<DeleteListing, DeleteListingVariable>(
+    DELETE_LISTING
+  );
+
+  async function handleDelete(id: string) {
+    const { data } = await deleteListing({ variables: { id } });
+    refetch();
   }
   return (
     <div>
-      Hello Listings
-      <button onClick={fetchData}>Fecth Listings</button>
-      <button onClick={deleteListing}>Delete Listing</button>
+      <ul>
+        {data &&
+          data.listing.map((l) => (
+            <li key={l.id}>
+              <p>{l.title}</p>
+              <button onClick={() => handleDelete(l.id)}>Delete</button>
+            </li>
+          ))}
+      </ul>
     </div>
   );
 };

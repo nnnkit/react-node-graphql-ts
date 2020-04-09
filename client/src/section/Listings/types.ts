@@ -10,7 +10,7 @@ interface Listing {
   rating: number;
 }
 export interface ListingData {
-  listings: Listing[];
+  listing: Listing[];
 }
 export interface DeleteListing {
   listing: Listing;
