@@ -1,7 +1,11 @@
 import React, { FC } from "react";
 import { gql } from "apollo-boost";
-import { server } from "../../lib/api/server";
-import { ListingData, DeleteListing, DeleteListingVariable } from "./types";
+import List from "antd/es/list";
+import {
+  DeleteListing,
+  DeleteListingVariables,
+} from "./__generated__/DeleteListing";
+import { Listings as ListingsData } from "./__generated__/Listings";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 
 const LISTINGS = gql`
@@ -28,8 +32,8 @@ const DELETE_LISTING = gql`
   }
 `;
 export const Listings: FC = () => {
-  let { data, refetch } = useQuery<ListingData>(LISTINGS);
-  let [deleteListing] = useMutation<DeleteListing, DeleteListingVariable>(
+  let { data, refetch } = useQuery<ListingsData>(LISTINGS);
+  let [deleteListing] = useMutation<DeleteListing, DeleteListingVariables>(
     DELETE_LISTING
   );
 
@@ -38,16 +42,18 @@ export const Listings: FC = () => {
     refetch();
   }
   return (
-    <div>
-      <ul>
-        {data &&
-          data.listing.map((l) => (
-            <li key={l.id}>
-              <p>{l.title}</p>
-              <button onClick={() => handleDelete(l.id)}>Delete</button>
-            </li>
-          ))}
-      </ul>
-    </div>
+    <>
+      {data && (
+        <List
+          itemLayout="horizontal"
+          dataSource={data.listing}
+          renderItem={(l) => (
+            <List.Item>
+              <List.Item.Meta title={l.title} />
+            </List.Item>
+          )}
+        ></List>
+      )}
+    </>
   );
 };

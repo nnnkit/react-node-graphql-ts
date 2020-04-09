@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { Listings } from "./section/Listings";
-
+import "./styles/index.css";
 const client = new ApolloClient({
   uri: "/graphql",
 });
