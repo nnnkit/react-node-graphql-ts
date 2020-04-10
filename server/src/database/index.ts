@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import { Database } from "../lib/types";
+import { Database, Listing, Booking, User } from "../lib/types";
 let url = "mongodb://localhost:27017";
 
 export async function connectDatabase(): Promise<Database> {
@@ -9,6 +9,8 @@ export async function connectDatabase(): Promise<Database> {
   });
   const db = client.db("listings");
   return {
-    listings: db.collection("test_listing"),
+    listings: db.collection<Listing>("listings"),
+    bookings: db.collection<Booking>("bookings"),
+    users: db.collection<User>("users"),
   };
 }
