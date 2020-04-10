@@ -5,3 +5,4 @@ yarn.lock
 Thumbs.db
 dist/**/*
 package-lock.json
+.env
