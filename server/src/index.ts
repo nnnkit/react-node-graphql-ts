@@ -10,11 +10,11 @@ async function startServer(app: Application) {
     resolvers,
     context: () => ({ db }),
   });
-  server.applyMiddleware({ app, path: "/graphql" });
+  server.applyMiddleware({ app, path: "/api" });
   const port = 9000;
   app.listen(port, () => {
     console.log(`Server is running at http://localhost:${port}`);
-    console.log(`Graphql endpoint is at http://localhost:${port}/graphql`);
+    console.log(`Graphql endpoint is at http://localhost:${port}/api`);
   });
 }
 startServer(express());
