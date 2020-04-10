@@ -24,9 +24,9 @@ export interface Listing {
   admin: string;
   city: string;
   bookings: ObjectID[];
-  bookingIndex: BookingIndex;
+  bookingsIndex: BookingIndex;
   price: number;
-  noOfGuests: number;
+  numOfGuests: number;
 }
 export interface User {
   _id: ObjectID;
