@@ -1,9 +1,22 @@
 import crypto from "crypto";
+import { Response, Request } from "express";
 import { IResolvers } from "apollo-server-express";
 import { Viewer, Database, User } from "../../../lib/types";
 import { Google } from "../../../lib/api";
 import { LogInInput } from "./types";
-const logInViaGoogle = async (code: string, token: string, db: Database) => {
+
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: true,
+  signed: true,
+  secure: false,
+};
+const logInViaGoogle = async (
+  code: string,
+  token: string,
+  db: Database,
+  res: Response
+) => {
   const { user } = await Google.logIn(code);
   const userName = user.names?.[0].displayName;
   const userId = user.names?.[0].metadata?.source?.id;
@@ -46,6 +59,29 @@ const logInViaGoogle = async (code: string, token: string, db: Database) => {
   if (!user) {
     throw new Error("Google login error");
   }
+  res.cookie("viewer", userId, {
+    ...cookieOptions,
+    maxAge: 365 * 24 * 60 * 60 * 1000,
+  });
+  return viewer;
+};
+const logInViaCookies = async (
+  token: string,
+  db: Database,
+  req: Request,
+  res: Response
+): Promise<User | undefined> => {
+  const updateRes = await db.users.findOneAndUpdate(
+    {
+      _id: req.signedCookies.viewer,
+    },
+    { $set: { token } },
+    { returnOriginal: false }
+  );
+  let viewer = updateRes.value;
+  if (!viewer) {
+    res.clearCookie("viewer", cookieOptions);
+  }
   return viewer;
 };
 export const viewerResolver: IResolvers = {
@@ -62,14 +98,14 @@ export const viewerResolver: IResolvers = {
     logIn: async (
       _root: undefined,
       { input }: LogInInput,
-      { db }: { db: Database }
+      { db, res, req }: { db: Database; res: Response; req: Request }
     ): Promise<Viewer> => {
       try {
         const code = input ? input.code : null;
         const token = crypto.randomBytes(16).toString("hex");
         const viewer: User | undefined = code
-          ? await logInViaGoogle(code, token, db)
-          : undefined;
+          ? await logInViaGoogle(code, token, db, res)
+          : await logInViaCookies(token, db, req, res);
         if (!viewer) {
           return { didRequest: true };
         }
@@ -84,12 +120,9 @@ export const viewerResolver: IResolvers = {
         throw new Error(`Failed to get user`);
       }
     },
-    logOut() {
+    logOut(_root: undefined, _args: {}, { res }: { res: Response }) {
+      res.clearCookie("viewer", cookieOptions);
       return {
-        _id: "",
-        token: "",
-        avatar: "",
-        walletId: "",
         didRequest: true,
       };
     },
