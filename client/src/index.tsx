@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ApolloClient from "apollo-boost";
-import { Layout } from "antd";
+import { Layout, Affix } from "antd";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { Listings } from "./section/Listings";
 import "./styles/index.css";
-import { Home, Host, Listing, NotFound, Login } from "./section";
+import { Home, Host, Listing, NotFound, Login, AppHeader } from "./section";
 import { Viewer } from "./lib/types";
 const client = new ApolloClient({
   uri: "/api",
@@ -25,6 +25,9 @@ const App = () => {
   return (
     <Router>
       <Layout id="app">
+        <Affix offsetTop={0}>
+          <AppHeader viewer={viewer} setViewer={setViewer} />
+        </Affix>
         <Switch>
           <Route exact path="/" component={Home} />
           <Route exact path="/host" component={Host} />

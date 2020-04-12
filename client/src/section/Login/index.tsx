@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Card, Layout, Typography } from "antd";
+import { Card, Layout, Typography, Spin } from "antd";
 import { Viewer } from "../../lib/types";
 import { useApolloClient, useMutation } from "@apollo/react-hooks";
 import { AuthUrl as AuthUrlData } from "../../graphql/queries/AuthUrl/__generated__/AuthUrl";
@@ -9,6 +9,13 @@ import {
   LogInVariables,
 } from "../../graphql/mutation/LogIn/__generated__/LogIn";
 import { LOG_IN } from "../../graphql/mutation";
+import {
+  displaySuccessNotification,
+  displayErrorMessage,
+} from "../../lib/utils";
+import { ErrorBanner } from "../../lib/components";
+import { Redirect } from "react-router-dom";
+
 const { Content } = Layout;
 const { Text, Title } = Typography;
 interface Props {
@@ -24,6 +31,7 @@ export const Login = ({ setViewer }: Props) => {
     onCompleted: (data) => {
       if (data && data.logIn) {
         setViewer(data.logIn);
+        displaySuccessNotification("You are successfully logged in.");
       }
     },
   });
@@ -42,7 +50,26 @@ export const Login = ({ setViewer }: Props) => {
     try {
       const { data } = await client.query<AuthUrlData>({ query: AUTH_URL });
       window.location.href = data.authUrl;
-    } catch (error) {}
+    } catch (error) {
+      displayErrorMessage("Oops! Something is wrong.");
+    }
+  }
+  if (logInLoading) {
+    return (
+      <Content className="log-in">
+        <Spin size="large" tip="Logging you in..." />
+      </Content>
+    );
+  }
+  if (logInError) {
+    return (
+      <Content className="log-in">
+        <ErrorBanner description="Sorry! We aren't able you log you in." />;
+      </Content>
+    );
+  }
+  if (logInData?.logIn) {
+    return <Redirect to={`/user/${logInData.logIn.id}`} />;
   }
   return (
     <Content className="log-in">

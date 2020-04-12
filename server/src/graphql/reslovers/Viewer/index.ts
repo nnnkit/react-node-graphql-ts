@@ -85,7 +85,13 @@ export const viewerResolver: IResolvers = {
       }
     },
     logOut() {
-      return "Logout";
+      return {
+        _id: "",
+        token: "",
+        avatar: "",
+        walletId: "",
+        didRequest: true,
+      };
     },
   },
   Viewer: {
