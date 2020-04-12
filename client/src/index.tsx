@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ApolloClient from "apollo-boost";
-import { Layout, Affix } from "antd";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { Layout, Affix, Spin } from "antd";
+import { ApolloProvider, useMutation } from "@apollo/react-hooks";
 import { Listings } from "./section/Listings";
 import "./styles/index.css";
 import { Home, Host, Listing, NotFound, Login, AppHeader } from "./section";
 import { Viewer } from "./lib/types";
+import { LogIn as LogInData } from "./graphql/mutation/LogIn/__generated__/LogIn";
+import { LOG_IN } from "./graphql/mutation";
+import { AppHeaderSkeleton } from "./lib/components";
 const client = new ApolloClient({
   uri: "/api",
 });
@@ -22,6 +25,27 @@ const initialValue: Viewer = {
 
 const App = () => {
   const [viewer, setViewer] = useState<Viewer>(initialValue);
+  const [logIn, { error }] = useMutation<LogInData>(LOG_IN, {
+    onCompleted: (data) => {
+      if (data && data.logIn) {
+        setViewer(data.logIn);
+      }
+    },
+  });
+  const logInRef = useRef(logIn);
+  useEffect(() => {
+    logInRef.current();
+  }, []);
+  if (!viewer.didRequest && !error) {
+    return (
+      <Layout className="app-skeleton">
+        <AppHeaderSkeleton />
+        <div className="app-skeleton__spin-section">
+          <Spin size="large" tip="Launching App" />
+        </div>
+      </Layout>
+    );
+  }
   return (
     <Router>
       <Layout id="app">
